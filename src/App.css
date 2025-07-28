@@ -1,6 +1,12 @@
 .App {
-  text-align: center;
+  display: flex;
+  justify-content: center; /* horizontal center */
+  align-items: center;     /* vertical center */
+  height: 100vh;           /* full viewport height */
+  background-color: wheat; /* optional background */
+  flex-direction: column;  /* to allow stacking content vertically */
 }
+
 
 .App-logo {
   height: 40vmin;
@@ -14,14 +20,14 @@
 }
 
 .App-header {
-  background-color: #282c34;
+  background-color: wheat;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
-  color: white;
+  color: black;
 }
 
 .App-link {
