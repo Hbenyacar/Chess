@@ -1,11 +1,14 @@
 import React, { useEffect, useState, useRef } from 'react';
 import socket from './socket'; // ✅ shared socket instance
+import ChessBoard from './components/ChessBoard';
 
 
 function Lobby() {
   const [header, setHeader] = useState('');
   const [joinedGame, setJoinedGame] = useState(false);
   const joinedGameRef = useRef(false);
+
+
 
   useEffect(() => {
 
@@ -27,14 +30,19 @@ function Lobby() {
       joinedGameRef.current = true;
   }
 
-    // 🔴 Cleanup when component unmounts (or re-renders)
     return () => {
       socket.off('waiting', onWaiting);
       socket.off('gameStart', onGameStart);
     };
   }, []);
 
-  return <header>{header}</header>;
+  return (
+    <div>
+      <header>{header}</header>
+      <ChessBoard/>
+    </div>
+
+  );
 }
 
 export default Lobby;

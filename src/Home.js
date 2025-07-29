@@ -22,7 +22,6 @@ function Home() {
 
   const toLobby = () => {
     navigate('/lobby');
-    //socket.emit('joinGame');
   }
 
   return (
