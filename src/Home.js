@@ -1,7 +1,7 @@
 import logo from './logo.svg';
 import './App.css';
 
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, useRef} from "react";
 import Button from '@mui/material/Button';
 import { useNavigate } from 'react-router-dom';
 
@@ -17,18 +17,12 @@ function Home() {
         setStatus("Waiting");
     })
 
-    socket.on("waiting", () => {
-        setName('waiting');
-        setStatus("Waiting");
-    })
 
-    socket.on('gameStart', () => {
-        setName('gameStart');
-    })
   }, []);
 
   const toLobby = () => {
-    socket.emit('joinGame');
+    navigate('/lobby');
+    //socket.emit('joinGame');
   }
 
   return (

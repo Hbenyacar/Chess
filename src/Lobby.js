@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import socket from './socket'; // ✅ shared socket instance
 
 
 function Lobby() {
   const [header, setHeader] = useState('');
+  const [joinedGame, setJoinedGame] = useState(false);
+  const joinedGameRef = useRef(false);
 
   useEffect(() => {
 
@@ -20,7 +22,10 @@ function Lobby() {
     socket.on('waiting', onWaiting);
     socket.on('gameStart', onGameStart);
 
-    socket.emit('joinGame');
+    if (!joinedGameRef.current) {
+      socket.emit('joinGame');
+      joinedGameRef.current = true;
+  }
 
     // 🔴 Cleanup when component unmounts (or re-renders)
     return () => {
