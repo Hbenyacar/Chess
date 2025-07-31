@@ -1,5 +1,10 @@
 import React from "react";
 import './ChessBoard.css';
+
+const squareClick = (row, col) => {
+    console.log(`${row}, ${col}`);
+}
+
 const ChessBoard = () => {
     const board = [];
 
@@ -9,7 +14,9 @@ const ChessBoard = () => {
             const isBlack = (row + col) % 2 === 1;
             squares.push(
                 <div key={`${row}-${col}`} 
-                className={`square ${isBlack ? 'black' : 'white'}`}>
+                className={`square ${isBlack ? 'black' : 'white'}`}
+                onClick={() => squareClick(row, col)}>
+
                 </div>
             );
         }
