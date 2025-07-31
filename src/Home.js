@@ -5,7 +5,7 @@ import React, {useEffect, useState, useRef} from "react";
 import Button from '@mui/material/Button';
 import { useNavigate } from 'react-router-dom';
 
-import socket from './socket'; // ✅ shared socket instance
+import socket from './socket';
 
 function Home() {
   const [status, setStatus] = useState("Connecting...")

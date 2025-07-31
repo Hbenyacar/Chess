@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import socket from './socket'; // ✅ shared socket instance
+import socket from './socket';
 import ChessBoard from './components/ChessBoard';
 
 
@@ -48,7 +48,7 @@ function Lobby() {
       <header>{header}</header>
       <header>{username}</header>
       <header>{opponent}</header>
-      <ChessBoard/>
+      <ChessBoard color={color}/>
     </div>
 
   );
