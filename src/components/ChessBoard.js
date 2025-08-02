@@ -1,9 +1,12 @@
 import React, { useState, useSyncExternalStore } from "react";
 import './ChessBoard.css';
+import socket from "../socket";
 
 const pieces = ['', 'Pawn', 'Knight', 'Bishop', 'Rook', 'Queen', 'King'];
 
-const squareClick = (row, col, color, position, setPosition, piece, setPiece, prevSquare, setPrevSquare) => {
+const squareClick = (opponent, row, col, color, position, setPosition, piece,
+                    setPiece, prevSquare, setPrevSquare, setUserTurn) => {
+
     if (piece !== '0' && piece !== '') {
         if (color === 'black' && position[row][col].startsWith('B')) {
             console.log('Valid Black!');
@@ -17,6 +20,8 @@ const squareClick = (row, col, color, position, setPosition, piece, setPiece, pr
             newPosition[row][col] = piece;
             newPosition[prevSquare[0]][prevSquare[1]] = '0';
             setPosition(newPosition);
+            socket.emit('switchTurn', opponent);
+            setUserTurn(false);
         }
         setPiece('0');
     } else {
@@ -25,7 +30,7 @@ const squareClick = (row, col, color, position, setPosition, piece, setPiece, pr
     }
 }
 
-const ChessBoard = ({color, position, setPosition}) => {
+const ChessBoard = ({opponent, color, position, setPosition, userTurn, setUserTurn}) => {
     console.log(`color ${color}`)
     const board = [];
     const className = `chess-board${color === 'black' ? ' rotate' : ''}`;
@@ -51,7 +56,9 @@ const ChessBoard = ({color, position, setPosition}) => {
             squares.push(
                 <div key={`${row}-${col}`} 
                 className={`square ${isBlack ? 'black' : 'white'}`}
-                onClick={() => squareClick(row, col, color, position, setPosition, piece, setPiece, prevSquare, setPrevSquare)}>
+                onClick={userTurn ? () => squareClick(opponent, row, col, color, position, 
+                                                    setPosition, piece, setPiece, prevSquare,
+                                                    setPrevSquare, setUserTurn) : undefined}>
                     {pieces[position[row][col].substring(1,position[row][col].length)]}
                 </div>
             );
