@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef } from 'react';
 import socket from './socket';
 import ChessBoard from './components/ChessBoard';
 
-
 function Lobby() {
   const [header, setHeader] = useState('');
   const [joinedGame, setJoinedGame] = useState(false);
@@ -10,7 +9,16 @@ function Lobby() {
   const [color, setColor] = useState('');
   const [username, setUser] = useState('');
   const [opponent, setOpponent] = useState('');
-
+  const [position, setPosition] = useState([[
+    'B4', 'B2', 'B3', 'B5', 'B6', 'B3', 'B2', 'B4'],
+    ['B1', 'B1', 'B1', 'B1', 'B1', 'B1', 'B1', 'B1'],
+    ['0', '0', '0', '0', '0', '0', '0', '0'],
+    ['0', '0', '0', '0', '0', '0', '0', '0'],
+    ['0', '0', '0', '0', '0', '0', '0', '0'],
+    ['0', '0', '0', '0', '0', '0', '0', '0'], 
+    ['W1', 'W1', 'W1', 'W1', 'W1', 'W1', 'W1', 'W1'],
+    ['W4', 'W2', 'W3', 'W5', 'W6', 'W3', 'W2', 'W4'
+  ]]);
 
 
   useEffect(() => {
@@ -48,7 +56,7 @@ function Lobby() {
       <header>{header}</header>
       <header>{username}</header>
       <header>{opponent}</header>
-      <ChessBoard color={color}/>
+      <ChessBoard color={color} position={position} setPosition={setPosition}/>
     </div>
 
   );
