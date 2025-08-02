@@ -1,4 +1,4 @@
-import React, { useState, useSyncExternalStore } from "react";
+import React, { useEffect, useState, useSyncExternalStore } from "react";
 import './ChessBoard.css';
 import socket from "../socket";
 
@@ -20,7 +20,7 @@ const squareClick = (opponent, row, col, color, position, setPosition, piece,
             newPosition[row][col] = piece;
             newPosition[prevSquare[0]][prevSquare[1]] = '0';
             setPosition(newPosition);
-            socket.emit('switchTurn', opponent);
+            socket.emit('madeMove', opponent, prevSquare, row, col, piece);
             setUserTurn(false);
         }
         setPiece('0');
@@ -37,6 +37,20 @@ const ChessBoard = ({opponent, color, position, setPosition, userTurn, setUserTu
     const [piece, setPiece] = useState('');
     const [prevSquare, setPrevSquare] = useState([[null],[]]);
     console.log(`${className}`)
+
+    useEffect(() => {
+        socket.on('yourTurn', ({from, to, piece}) => {
+            const newPosition = position.map(row => [...row]);
+            newPosition[to[0]][to[1]] = piece;
+            newPosition[from[0]][from[1]] = '0';
+            setPosition(newPosition);
+            setUserTurn(true);
+        });
+
+        return () => {
+            socket.off('yourTurn');
+        };
+    }, [position, setPosition, setUserTurn])
 
     // ------------
     // Piece Values

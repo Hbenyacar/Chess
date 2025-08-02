@@ -41,13 +41,16 @@ function Lobby() {
       setOpponent(playerData.opponent);
     };
 
-    const onYourTurn = () => {
+    const onYourTurn = (prevSquare, row, col, position) => {
+        const newPosition = position.map(row => [...row]);
+        newPosition[row][col] = '';
+        newPosition[prevSquare[0]][prevSquare[1]] = '0';
         setMyTurn(true);
     }
 
     socket.on('waiting', onWaiting);
     socket.on('gameStart', onGameStart);
-    socket.on('yourTurn', onYourTurn);
+    socket.on('yourTurn1', onYourTurn);
 
     if (!joinedGameRef.current) {
       socket.emit('joinGame');
