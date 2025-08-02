@@ -2,6 +2,35 @@ import React, { useEffect, useState, useSyncExternalStore } from "react";
 import './ChessBoard.css';
 import socket from "../socket";
 
+import bBishop from './pieces-png/B-Bishop.png';
+import bKing from './pieces-png/B-King.png';
+import bKnight from './pieces-png/B-Knight.png';
+import bPawn from './pieces-png/B-Pawn.png';
+import bRook from './pieces-png/B-Rook.png';
+import bQueen from './pieces-png/B-Queen.png';
+import wBishop from './pieces-png/W-Bishop.png';
+import wKing from './pieces-png/W-King.png';
+import wKnight from './pieces-png/W-Knight.png';
+import wPawn from './pieces-png/W-Pawn.png';
+import wRook from './pieces-png/W-Rook.png';
+import wQueen from './pieces-png/W-Queen.png';
+
+const pieceImages = {
+    'B1': bPawn,
+    'B2': bKnight,
+    'B3': bBishop,
+    'B4': bRook,
+    'B5': bQueen,
+    'B6': bKing,
+    'W1': wPawn,
+    'W2': wKnight,
+    'W3': wBishop,
+    'W4': wRook,
+    'W5': wQueen,
+    'W6': wKing,
+}
+
+
 const pieces = ['', 'Pawn', 'Knight', 'Bishop', 'Rook', 'Queen', 'King'];
 
 const squareClick = (opponent, row, col, color, position, setPosition, piece,
@@ -52,17 +81,6 @@ const ChessBoard = ({opponent, color, position, setPosition, userTurn, setUserTu
         };
     }, [position, setPosition, setUserTurn])
 
-    // ------------
-    // Piece Values
-    // ------------
-    // Null 0
-    // Pawn 1
-    // Knight 2
-    // Bishop 3
-    // Rook 4
-    // Queen 5
-    // King 6
-
     for (let row = 0; row < 8; row ++) {
         const squares = [];
         for (let col = 0; col < 8; col++) {
@@ -73,7 +91,8 @@ const ChessBoard = ({opponent, color, position, setPosition, userTurn, setUserTu
                 onClick={userTurn ? () => squareClick(opponent, row, col, color, position, 
                                                     setPosition, piece, setPiece, prevSquare,
                                                     setPrevSquare, setUserTurn) : undefined}>
-                    {pieces[position[row][col].substring(1,position[row][col].length)]}
+                    <img  className={`${color === 'black' ? 'rotate' : ''}`} src={pieceImages[position[row][col]]}></img>
+
                 </div>
             );
         }
