@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useSyncExternalStore } from "react";
+import React, { useEffect, useState } from "react";
 import './ChessBoard.css';
 import socket from "../socket";
 
@@ -15,6 +15,8 @@ import wPawn from './pieces-png/W-Pawn.png';
 import wRook from './pieces-png/W-Rook.png';
 import wQueen from './pieces-png/W-Queen.png';
 
+import { bishopMoves } from "../scripts/ValidMoves";
+
 const pieceImages = {
     'B1': bPawn,
     'B2': bKnight,
@@ -30,12 +32,25 @@ const pieceImages = {
     'W6': wKing,
 }
 
-
 const pieces = ['', 'Pawn', 'Knight', 'Bishop', 'Rook', 'Queen', 'King'];
 
-const squareClick = (opponent, row, col, color, position, setPosition, piece,
-                    setPiece, prevSquare, setPrevSquare, setUserTurn) => {
+let temp = ['', 'dot', 'hollow-circle'];
 
+const emptyArray = [
+    [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0 ], 
+    [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+    [ 0, 0, 0, 0, 0, 0, 0, 0 ]
+];
+
+const squareClick = (opponent, row, col, color, position, setPosition, piece,
+                    setPiece, prevSquare, setPrevSquare, setUserTurn, setDotsShown) => {
+    console.log(`color before enter ${color}`);
+    setDotsShown(bishopMoves(row, col, position, color));
     if (piece !== '0' && piece !== '') {
         if (color === 'black' && position[row][col].startsWith('B')) {
             console.log('Valid Black!');
@@ -53,6 +68,7 @@ const squareClick = (opponent, row, col, color, position, setPosition, piece,
             setUserTurn(false);
         }
         setPiece('0');
+        setDotsShown(emptyArray);
     } else {
         setPrevSquare([[row],[col]]);
         setPiece(position[row][col]);
@@ -66,6 +82,7 @@ const ChessBoard = ({opponent, color, position, setPosition, userTurn, setUserTu
     const [piece, setPiece] = useState('');
     const [prevSquare, setPrevSquare] = useState([[null],[]]);
     console.log(`${className}`)
+    const [dotsShown, setDotsShown] = useState(emptyArray);
 
     useEffect(() => {
         socket.on('yourTurn', ({from, to, piece}) => {
@@ -90,7 +107,8 @@ const ChessBoard = ({opponent, color, position, setPosition, userTurn, setUserTu
                 className={`square ${isBlack ? 'black' : 'white'}`}
                 onClick={userTurn ? () => squareClick(opponent, row, col, color, position, 
                                                     setPosition, piece, setPiece, prevSquare,
-                                                    setPrevSquare, setUserTurn) : undefined}>
+                                                    setPrevSquare, setUserTurn, setDotsShown) : undefined}>
+                    <div className={`${temp[dotsShown[row][col]]}`}></div>
                     <img  className={`${color === 'black' ? 'rotate' : ''}`} src={pieceImages[position[row][col]]}></img>
 
                 </div>
