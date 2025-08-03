@@ -4,6 +4,27 @@ export function main() {
 
 }
 
+function checkSquare(position, x, y, touchedPiece, color, i) {
+    console.log(`x ${x}`);
+    console.log(`y ${y}`);
+    console.log('h');
+    if ((x) >= 0 && (y) >= 0 && (x < 8) && (y < 8) && (touchedPiece[i] != 1)) { // top left check for white
+        console.log('e');
+        if (!position[x][y].startsWith(color[0].toUpperCase()) || position[x][y] === '0') {
+            console.log('r');
+            if (position[x][y] !== '0') {
+                console.log('e');
+                return {arrVal: 2, touch: 1};
+            } else {
+                console.log('e');
+                return {arrVal: 1, touch: 0};
+            }
+        }
+    }
+    return {arrVal: 0, touch: 1};
+
+}
+
 export function bishopMoves(row, col, position, color) {
     let array = [
         [ 0, 0, 0, 0, 0, 0, 0, 0 ],
@@ -20,51 +41,33 @@ export function bishopMoves(row, col, position, color) {
     let y = col;
     let touchedPiece = [0, 0, 0, 0]
     console.log(position);
-    console.log(color)
+    console.log(color);
     while (i < 8) {
-        if ((x-i) >= 0 && (y-i) >= 0 && touchedPiece[0] != 1) { // top left check for white
-            if (!position[x-i][y-i].startsWith(color[0].toUpperCase()) || position[x-i][y-i] === '0') {
-                if (position[x-i][y-i] !== '0') {
-                    array[x-i][y-i] = 2;
-                    touchedPiece[0] = 1;
-                } else {
-                    array[x-i][y-i] = 1;
-                }
-            }
+        console.log(i);
+        let {arrVal, touch} = checkSquare(position, (x-i), (y-i), touchedPiece, color, 0);
+        if (arrVal != 0) {
+            array[x-i][y-i] = arrVal;
         }
-        if ((x+i) < 8  && (y+i) < 8 && touchedPiece[1] != 1) { // bottom right check for white
-            if (!position[x+i][y+i].startsWith(color[0].toUpperCase()) || position[x+i][y+i] === '0') {
-                if (position[x+i][y+i] !== '0') {
-                    array[x+i][y+i] = 2;
-                    touchedPiece[1] = 1;
-                } else {
-                    array[x+i][y+i] = 1;
-                }
-            }
+        touchedPiece[0] = touch;
 
+        ({arrVal, touch} = checkSquare(position, (x+i), (y+i), touchedPiece, color, 1));
+        if (arrVal != 0) {
+            array[x+i][y+i] = arrVal;
         }
-        if ((x-i) >= 0  && (y+i) < 8 && touchedPiece[2] != 1) { // top right check for white
-            if (!position[x-i][y+i].startsWith(color[0].toUpperCase()) || position[x-i][y+i] === '0') {
-                if (position[x-i][y+i] !== '0') {
-                    array[x-i][y+i] = 2;
-                    touchedPiece[2] = 1;
-                } else {
-                    array[x-i][y+i] = 1;
-                }
-            }
+        touchedPiece[1] = touch;
 
-        }
-        if ((x+i) < 8  && (y-i) >= 0 && touchedPiece[3] != 1) { // bottom left check for white
-            if (!position[x+i][y-i].startsWith(color[0].toUpperCase()) || position[x+i][y-i] === '0') {
-                if (position[x+i][y-i] !== '0') {
-                    array[x+i][y-i] = 2;
-                    touchedPiece[3] = 1;
-                } else {
-                    array[x+i][y-i] = 1;
-                }
-            }
 
+        ({arrVal, touch} = checkSquare(position, (x-i), (y+i), touchedPiece, color, 2));
+        if (arrVal != 0) {
+            array[x-i][y+i] = arrVal;
         }
+        touchedPiece[2] = touch;
+
+        ({arrVal, touch} = checkSquare(position, (x+i), (y-i), touchedPiece, color, 3));
+        if (arrVal != '0') {
+            array[x+i][y-i] = arrVal;
+        }
+        touchedPiece[3] = touch;
         i++;
     }
     console.log(array)

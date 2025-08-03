@@ -48,27 +48,20 @@ const emptyArray = [
 ];
 
 const squareClick = (opponent, row, col, color, position, setPosition, piece,
-                    setPiece, prevSquare, setPrevSquare, setUserTurn, setDotsShown) => {
+                    setPiece, prevSquare, setPrevSquare, setUserTurn, dotsShown, setDotsShown) => {
     console.log(`color before enter ${color}`);
     setDotsShown(bishopMoves(row, col, position, color));
     if (piece !== '0' && piece !== '') {
-        if (color === 'black' && position[row][col].startsWith('B')) {
-            console.log('Valid Black!');
-        } else if (color === 'white' && position[row][col].startsWith('W')) {
-            console.log('Valid White!');
-        } else {
-            console.log('Invalid!');
-        }
         const newPosition = position.map(row => [...row]);
-        if (prevSquare[0] != row || prevSquare[1] != col) {
+        if ((prevSquare[0] != row || prevSquare[1] != col) && dotsShown[row][col] > 0) {
             newPosition[row][col] = piece;
             newPosition[prevSquare[0]][prevSquare[1]] = '0';
             setPosition(newPosition);
             socket.emit('madeMove', opponent, prevSquare, row, col, piece);
             setUserTurn(false);
+            setDotsShown(emptyArray);
         }
         setPiece('0');
-        setDotsShown(emptyArray);
     } else {
         setPrevSquare([[row],[col]]);
         setPiece(position[row][col]);
@@ -107,7 +100,7 @@ const ChessBoard = ({opponent, color, position, setPosition, userTurn, setUserTu
                 className={`square ${isBlack ? 'black' : 'white'}`}
                 onClick={userTurn ? () => squareClick(opponent, row, col, color, position, 
                                                     setPosition, piece, setPiece, prevSquare,
-                                                    setPrevSquare, setUserTurn, setDotsShown) : undefined}>
+                                                    setPrevSquare, setUserTurn, dotsShown, setDotsShown) : undefined}>
                     <div className={`${temp[dotsShown[row][col]]}`}></div>
                     <img  className={`${color === 'black' ? 'rotate' : ''}`} src={pieceImages[position[row][col]]}></img>
 
