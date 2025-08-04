@@ -20,7 +20,7 @@ export function main(row, col, position, color, CanEnPassant, lastMove) {
     } else if (position[row][col].endsWith('3')) {
         return bishopMoves(row, col, position, color);
     } else if (position[row][col].endsWith('4')) {
-        return emp;
+        return straight(row, col, position, color);
     } else if (position[row][col].endsWith('5')) {
         return emp;
     } else if (position[row][col].endsWith('6')) {
@@ -39,6 +39,47 @@ function checkSquare(position, x, y, touchedPiece, color, i) {
         }
     }
     return {arrVal: 0, touch: 1};
+}
+
+function straight(row, col, position, color) {
+    let array = [
+        [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+        [ 0, 0, 0, 0, 0, 0, 0, 0 ], 
+        [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+        [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+        [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+        [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+        [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+        [ 0, 0, 0, 0, 0, 0, 0, 0 ]
+    ]
+    let touched = [0,0,0,0];
+    for (let i = 1; i < 8; i++) {
+        let {arrVal, touch} = checkSquare(position, row+i, col, touched, color, 0);
+        if (arrVal > 0) {
+            array[row+i][col] = arrVal;
+        }
+        touched[0] = touch;
+
+        ({arrVal, touch} = checkSquare(position, row-i, col, touched, color, 1));
+        if (arrVal > 0) {
+            array[row-i][col] = arrVal;
+        }
+        touched[1] = touch;
+
+        ({arrVal, touch} = checkSquare(position, row, col+i, touched, color, 2));
+        if (arrVal > 0) {
+            array[row][col+i] = arrVal;
+        }
+        touched[2] = touch;
+
+        ({arrVal, touch} = checkSquare(position, row, col-i, touched, color, 3));
+        if (arrVal > 0) {
+            array[row][col-i] = arrVal;
+        }
+        touched[3] = touch;
+    }
+    console.log(array);
+    return array;
 }
 
 function pawnMoves(row, col, position, color, CanEnPassant, lastMove) {
