@@ -12,17 +12,29 @@ const emp = [
     [ 0, 0, 0, 0, 0, 0, 0, 0 ]
 ]
 export function main(row, col, position, color, CanEnPassant, lastMove) {
+    let validMoves = [
+        [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+        [ 0, 0, 0, 0, 0, 0, 0, 0 ], 
+        [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+        [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+        [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+        [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+        [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+        [ 0, 0, 0, 0, 0, 0, 0, 0 ]
+    ]
+
     console.log('in main');
     if (position[row][col].endsWith('1')) {
-        return pawnMoves(row, col, position, color, CanEnPassant, lastMove);
+        return pawnMoves(validMoves, row, col, position, color, CanEnPassant, lastMove);
     } else if (position[row][col].endsWith('2')) {
-        return knightMoves(row, col, position, color);
+        return knightMoves(validMoves, row, col, position, color);
     } else if (position[row][col].endsWith('3')) {
-        return bishopMoves(row, col, position, color);
+        return diagonal(validMoves, row, col, position, color);
     } else if (position[row][col].endsWith('4')) {
-        return straight(row, col, position, color);
+        return straight(validMoves, row, col, position, color);
     } else if (position[row][col].endsWith('5')) {
-        return emp;
+        validMoves = straight(validMoves, row, col, position, color);
+        return diagonal(validMoves, row, col, position, color);
     } else if (position[row][col].endsWith('6')) {
         return emp;
     }
@@ -41,17 +53,7 @@ function checkSquare(position, x, y, touchedPiece, color, i) {
     return {arrVal: 0, touch: 1};
 }
 
-function straight(row, col, position, color) {
-    let array = [
-        [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-        [ 0, 0, 0, 0, 0, 0, 0, 0 ], 
-        [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-        [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-        [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-        [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-        [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-        [ 0, 0, 0, 0, 0, 0, 0, 0 ]
-    ]
+function straight(array, row, col, position, color) {
     let touched = [0,0,0,0];
     for (let i = 1; i < 8; i++) {
         let {arrVal, touch} = checkSquare(position, row+i, col, touched, color, 0);
@@ -82,17 +84,7 @@ function straight(row, col, position, color) {
     return array;
 }
 
-function pawnMoves(row, col, position, color, CanEnPassant, lastMove) {
-    let array = [
-        [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-        [ 0, 0, 0, 0, 0, 0, 0, 0 ], 
-        [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-        [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-        [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-        [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-        [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-        [ 0, 0, 0, 0, 0, 0, 0, 0 ]
-    ]
+function pawnMoves(array, row, col, position, color, CanEnPassant, lastMove) {
     let touched = [0];
     let isBlack = 1;
     let startRow = 1;
@@ -119,11 +111,8 @@ function pawnMoves(row, col, position, color, CanEnPassant, lastMove) {
     if (arrVal == 2) {
         array[row+isBlack][col+1] = arrVal;
     }
-    console.log(`Can ${CanEnPassant}`);
-    console.log(`lastMove ${lastMove[0]} ${lastMove[1]}`);
-    console.log(`${row} ${col}`);
-    console.log(`${CanEnPassant} `);
-    console.log(Math.abs(col-lastMove[1]));
+
+    // Determine if this pawn can enPassant
     if (CanEnPassant && (row == lastMove[0]) && (Math.abs(col-lastMove[1]) == 1)) {
         console.log('in here')
         if (lastMove[1] > col) {
@@ -135,17 +124,7 @@ function pawnMoves(row, col, position, color, CanEnPassant, lastMove) {
     return array;
 }
 
-function knightMoves(row, col, position, color) {
-    let array = [
-        [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-        [ 0, 0, 0, 0, 0, 0, 0, 0 ], 
-        [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-        [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-        [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-        [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-        [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-        [ 0, 0, 0, 0, 0, 0, 0, 0 ]
-    ];
+function knightMoves(array, row, col, position, color) {
     let touchedPiece = [0];
 
     const possibleMoves = [[[-1],[2]],
@@ -169,17 +148,8 @@ function knightMoves(row, col, position, color) {
 } 
 
 
-export function bishopMoves(row, col, position, color) {
-    let array = [
-        [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-        [ 0, 0, 0, 0, 0, 0, 0, 0 ], 
-        [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-        [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-        [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-        [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-        [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-        [ 0, 0, 0, 0, 0, 0, 0, 0 ]
-    ];
+export function diagonal(array, row, col, position, color) {
+
     let i = 1;
     let x = row;
     let y = col;
