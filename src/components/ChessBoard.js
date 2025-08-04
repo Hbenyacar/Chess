@@ -16,6 +16,7 @@ import wRook from './pieces-png/W-Rook.png';
 import wQueen from './pieces-png/W-Queen.png';
 
 import { bishopMoves } from "../scripts/ValidMoves";
+import { main } from "../scripts/ValidMoves";
 
 const pieceImages = {
     'B1': bPawn,
@@ -48,16 +49,38 @@ const emptyArray = [
 ];
 
 const squareClick = (opponent, row, col, color, position, setPosition, piece,
-                    setPiece, prevSquare, setPrevSquare, setUserTurn, dotsShown, setDotsShown) => {
-    console.log(`color before enter ${color}`);
-    setDotsShown(bishopMoves(row, col, position, color));
-    if (piece !== '0' && piece !== '') {
+                    setPiece, prevSquare, setPrevSquare, setUserTurn, 
+                    dotsShown, setDotsShown, CanEnPassant, lastMove) => {
+    //console.log(lastMove);
+    if (piece !== '0' && piece !== '' && dotsShown[row][col] > 0) {
         const newPosition = position.map(row => [...row]);
-        if ((prevSquare[0] != row || prevSquare[1] != col) && dotsShown[row][col] > 0) {
+        console.log(dotsShown);
+        if ((prevSquare[0] != row || prevSquare[1] != col)) {
+            console.log(`RIGHT HERE ${piece} ${Math.abs(lastMove[0]-row)} ${lastMove[0]} ${col}`);
+            let enPassanted = false;
+            if (CanEnPassant && piece.endsWith('1') && (Math.abs(lastMove[0]-row) == 1) && (lastMove[1] == col)) {
+                    console.log('HEREEEEE');
+                    if (color === 'black') {
+                        newPosition[row-1][lastMove[1]] = '0';
+                    } else {
+                        newPosition[row+1][lastMove[1]] = '0'
+                    }
+                    enPassanted = true;
+            }
+
             newPosition[row][col] = piece;
             newPosition[prevSquare[0]][prevSquare[1]] = '0';
             setPosition(newPosition);
-            socket.emit('madeMove', opponent, prevSquare, row, col, piece);
+
+            // Check if opponent can enPassant
+            CanEnPassant = false;
+            if (piece.endsWith('1') && Math.abs((row - prevSquare[0])) === 2) {
+                CanEnPassant = true;
+            }
+    
+            console.log(`enpassanted: ${enPassanted}`);
+            console.log(`Can Enpassant: ${CanEnPassant}`);
+            socket.emit('madeMove', opponent, prevSquare, row, col, piece, CanEnPassant, enPassanted);
             setUserTurn(false);
             setDotsShown(emptyArray);
         }
@@ -65,6 +88,12 @@ const squareClick = (opponent, row, col, color, position, setPosition, piece,
     } else {
         setPrevSquare([[row],[col]]);
         setPiece(position[row][col]);
+        if (position[row][col] !== '0' &&
+            position[row][col].startsWith(color[0].toUpperCase())) {
+            setDotsShown(main(row, col, position, color, CanEnPassant, lastMove));
+        } else {
+            setDotsShown(emptyArray);
+        }
     }
 }
 
@@ -76,14 +105,28 @@ const ChessBoard = ({opponent, color, position, setPosition, userTurn, setUserTu
     const [prevSquare, setPrevSquare] = useState([[null],[]]);
     console.log(`${className}`)
     const [dotsShown, setDotsShown] = useState(emptyArray);
+    const [CanEnPassant, setCanEnPassant] = useState(false);
+    const [lastMove, setLastMove] = useState([,]);
 
     useEffect(() => {
-        socket.on('yourTurn', ({from, to, piece}) => {
+        socket.on('yourTurn', ({from, to, piece, CanEnPassant, enPassanted}) => {
             const newPosition = position.map(row => [...row]);
             newPosition[to[0]][to[1]] = piece;
             newPosition[from[0]][from[1]] = '0';
+            console.log(`${enPassanted} enPassanted`);
+            if (enPassanted) {
+                if (color === 'white') {
+                    newPosition[to[0]-1][to[1]] = '0';
+                } else {
+                    newPosition[to[0]+1][to[1]] = '0';
+                }
+            }
             setPosition(newPosition);
             setUserTurn(true);
+            setCanEnPassant(CanEnPassant);
+
+            setLastMove([to[0],to[1]]);
+            console.log(`lastMove ${lastMove[0]}, ${lastMove[1]}`);
         });
 
         return () => {
@@ -100,7 +143,9 @@ const ChessBoard = ({opponent, color, position, setPosition, userTurn, setUserTu
                 className={`square ${isBlack ? 'black' : 'white'}`}
                 onClick={userTurn ? () => squareClick(opponent, row, col, color, position, 
                                                     setPosition, piece, setPiece, prevSquare,
-                                                    setPrevSquare, setUserTurn, dotsShown, setDotsShown) : undefined}>
+                                                    setPrevSquare, setUserTurn, 
+                                                    dotsShown, setDotsShown,
+                                                    CanEnPassant, lastMove) : undefined}>
                     <div className={`${temp[dotsShown[row][col]]}`}></div>
                     <img  className={`${color === 'black' ? 'rotate' : ''}`} src={pieceImages[position[row][col]]}></img>
 
