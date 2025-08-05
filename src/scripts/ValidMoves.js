@@ -1,17 +1,4 @@
-import React, { useEffect, useState } from "react";
-
-
-const emp = [
-    [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-    [ 0, 0, 0, 0, 0, 0, 0, 0 ], 
-    [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-    [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-    [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-    [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-    [ 0, 0, 0, 0, 0, 0, 0, 0 ],
-    [ 0, 0, 0, 0, 0, 0, 0, 0 ]
-]
-export function main(row, col, position, color, CanEnPassant, lastMove) {
+export function validMoves(row, col, position, color, CanEnPassant, lastMove, canCastle) {
     let validMoves = [
         [ 0, 0, 0, 0, 0, 0, 0, 0 ],
         [ 0, 0, 0, 0, 0, 0, 0, 0 ], 
@@ -36,7 +23,7 @@ export function main(row, col, position, color, CanEnPassant, lastMove) {
         validMoves = straight(validMoves, row, col, position, color);
         return diagonal(validMoves, row, col, position, color);
     } else if (position[row][col].endsWith('6')) {
-        return emp;
+        return kingMoves(validMoves, row, col, position, color, canCastle);
     }
 }
 
@@ -147,8 +134,54 @@ function knightMoves(array, row, col, position, color) {
     return array;
 } 
 
+function kingMoves(array, row, col, position, color, canCastle) {
+    let touchedPiece = [0];
+    let arrVal = 0;
+    let touch = 0;
 
-export function diagonal(array, row, col, position, color) {
+    const possibleMoves = [[[-1],[-1]],
+                        [[-1],[1]],
+                        [[1],[1]],
+                        [[1],[-1]],
+                        [[0],[1]],
+                        [[0],[-1]],
+                        [[1],[0]],
+                        [[-1],[0]]];
+
+    for (let i = 0; i < 8; i++) {
+        let x = parseInt(row) + parseInt(possibleMoves[i][0]);
+        let y = parseInt(col) + parseInt(possibleMoves[i][1]);
+        ({arrVal, touch} = checkSquare(position, x, y, touchedPiece, color, 0));
+        if (arrVal != 0) {
+            array[x][y] = arrVal;
+        }
+    }
+
+    if (color === 'black') {
+        row = 0;
+    } else {
+        row = 7;
+    }
+
+    if (canCastle[0]) {
+        ({arrVal, touch} = checkSquare(position, row, 0, touchedPiece, color, 0));
+        if (arrVal != 0) {
+            array[row][0] = arrVal;
+        }
+    }
+
+    if (canCastle[1]) {
+        ({arrVal, touch} = checkSquare(position, row, 7, touchedPiece, color, 0));
+        if (arrVal != 0) {
+            array[row][7] = arrVal;
+        }
+    }
+
+    return array;
+}
+
+
+function diagonal(array, row, col, position, color) {
 
     let i = 1;
     let x = row;

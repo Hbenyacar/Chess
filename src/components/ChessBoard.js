@@ -15,8 +15,7 @@ import wPawn from './pieces-png/W-Pawn.png';
 import wRook from './pieces-png/W-Rook.png';
 import wQueen from './pieces-png/W-Queen.png';
 
-import { bishopMoves } from "../scripts/ValidMoves";
-import { main } from "../scripts/ValidMoves";
+import { validMoves } from "../scripts/ValidMoves";
 
 const pieceImages = {
     'B1': bPawn,
@@ -50,16 +49,28 @@ const emptyArray = [
 
 const squareClick = (opponent, row, col, color, position, setPosition, piece,
                     setPiece, prevSquare, setPrevSquare, setUserTurn, 
-                    dotsShown, setDotsShown, CanEnPassant, lastMove) => {
+                    dotsShown, setDotsShown, CanEnPassant, lastMove, canCastle, setCanCastle) => {
     //console.log(lastMove);
     if (piece !== '0' && piece !== '' && dotsShown[row][col] > 0) {
         const newPosition = position.map(row => [...row]);
         console.log(dotsShown);
         if ((prevSquare[0] != row || prevSquare[1] != col)) {
-            console.log(`RIGHT HERE ${piece} ${Math.abs(lastMove[0]-row)} ${lastMove[0]} ${col}`);
+
+            if (piece.endsWith('6')) {
+                setCanCastle([false, false]);
+            }
+
+            // Check if can castle - [0] is left - [1] is right
+            if ((canCastle[0] || canCastle[1]) && piece.endsWith('4')) {
+                if (prevSquare[1] == 0) {
+                    setCanCastle([false,canCastle[1]]);
+                } else {
+                    setCanCastle([canCastle[0], true]);
+                }
+            }
+
             let enPassanted = false;
             if (CanEnPassant && piece.endsWith('1') && (Math.abs(lastMove[0]-row) == 1) && (lastMove[1] == col)) {
-                    console.log('HEREEEEE');
                     if (color === 'black') {
                         newPosition[row-1][lastMove[1]] = '0';
                     } else {
@@ -77,9 +88,6 @@ const squareClick = (opponent, row, col, color, position, setPosition, piece,
             if (piece.endsWith('1') && Math.abs((row - prevSquare[0])) === 2) {
                 CanEnPassant = true;
             }
-    
-            console.log(`enpassanted: ${enPassanted}`);
-            console.log(`Can Enpassant: ${CanEnPassant}`);
             socket.emit('madeMove', opponent, prevSquare, row, col, piece, CanEnPassant, enPassanted);
             setUserTurn(false);
             setDotsShown(emptyArray);
@@ -90,7 +98,7 @@ const squareClick = (opponent, row, col, color, position, setPosition, piece,
         setPiece(position[row][col]);
         if (position[row][col] !== '0' &&
             position[row][col].startsWith(color[0].toUpperCase())) {
-            setDotsShown(main(row, col, position, color, CanEnPassant, lastMove));
+            setDotsShown(validMoves(row, col, position, color, CanEnPassant, lastMove, canCastle));
         } else {
             setDotsShown(emptyArray);
         }
@@ -107,6 +115,7 @@ const ChessBoard = ({opponent, color, position, setPosition, userTurn, setUserTu
     const [dotsShown, setDotsShown] = useState(emptyArray);
     const [CanEnPassant, setCanEnPassant] = useState(false);
     const [lastMove, setLastMove] = useState([,]);
+    const [canCastle, setCanCastle] = useState([true,true]);
 
     useEffect(() => {
         socket.on('yourTurn', ({from, to, piece, CanEnPassant, enPassanted}) => {
@@ -145,7 +154,7 @@ const ChessBoard = ({opponent, color, position, setPosition, userTurn, setUserTu
                                                     setPosition, piece, setPiece, prevSquare,
                                                     setPrevSquare, setUserTurn, 
                                                     dotsShown, setDotsShown,
-                                                    CanEnPassant, lastMove) : undefined}>
+                                                    CanEnPassant, lastMove, canCastle, setCanCastle) : undefined}>
                     <div className={`${temp[dotsShown[row][col]]}`}></div>
                     <img  className={`${color === 'black' ? 'rotate' : ''}`} src={pieceImages[position[row][col]]}></img>
 
