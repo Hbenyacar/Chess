@@ -58,6 +58,13 @@ const squareClick = (opponent, row, col, color, position, setPosition, piece,
 
             if (piece.endsWith('6')) {
                 setCanCastle([false, false]);
+                if ((col - prevSquare[1]) === 2) {
+                    newPosition[row][col-1] = position[row][7];
+                    newPosition[row][7] = '0';
+                } else if ((col - prevSquare[1]) === -2) {
+                    newPosition[row][col+1] = position[row][0];
+                    newPosition[row][0] = '0';
+                }
             }
 
             // Check if can castle - [0] is left - [1] is right
@@ -65,7 +72,7 @@ const squareClick = (opponent, row, col, color, position, setPosition, piece,
                 if (prevSquare[1] == 0) {
                     setCanCastle([false,canCastle[1]]);
                 } else {
-                    setCanCastle([canCastle[0], true]);
+                    setCanCastle([canCastle[0], false]);
                 }
             }
 
@@ -88,13 +95,22 @@ const squareClick = (opponent, row, col, color, position, setPosition, piece,
             if (piece.endsWith('1') && Math.abs((row - prevSquare[0])) === 2) {
                 CanEnPassant = true;
             }
-            socket.emit('madeMove', opponent, prevSquare, row, col, piece, CanEnPassant, enPassanted);
+            console.log(newPosition)
+            socket.emit('madeMove', {
+                opponent,
+                from: prevSquare,
+                to: [row, col],
+                piece,
+                CanEnPassant,
+                enPassanted,
+                newPos: newPosition
+              });
             setUserTurn(false);
             setDotsShown(emptyArray);
         }
         setPiece('0');
     } else {
-        setPrevSquare([[row],[col]]);
+        setPrevSquare([row, col]);
         setPiece(position[row][col]);
         if (position[row][col] !== '0' &&
             position[row][col].startsWith(color[0].toUpperCase())) {
@@ -110,7 +126,7 @@ const ChessBoard = ({opponent, color, position, setPosition, userTurn, setUserTu
     const board = [];
     const className = `chess-board${color === 'black' ? ' rotate' : ''}`;
     const [piece, setPiece] = useState('');
-    const [prevSquare, setPrevSquare] = useState([[null],[]]);
+    const [prevSquare, setPrevSquare] = useState([null, null]);
     console.log(`${className}`)
     const [dotsShown, setDotsShown] = useState(emptyArray);
     const [CanEnPassant, setCanEnPassant] = useState(false);
@@ -118,11 +134,14 @@ const ChessBoard = ({opponent, color, position, setPosition, userTurn, setUserTu
     const [canCastle, setCanCastle] = useState([true,true]);
 
     useEffect(() => {
-        socket.on('yourTurn', ({from, to, piece, CanEnPassant, enPassanted}) => {
+        socket.on('yourTurn', ({from, to, piece, CanEnPassant, enPassanted, newPos}) => {
+
             const newPosition = position.map(row => [...row]);
             newPosition[to[0]][to[1]] = piece;
             newPosition[from[0]][from[1]] = '0';
             console.log(`${enPassanted} enPassanted`);
+            console.log(newPos);
+            
             if (enPassanted) {
                 if (color === 'white') {
                     newPosition[to[0]-1][to[1]] = '0';
@@ -130,18 +149,24 @@ const ChessBoard = ({opponent, color, position, setPosition, userTurn, setUserTu
                     newPosition[to[0]+1][to[1]] = '0';
                 }
             }
+
+            for (let i = 0; i < 8; i++) {
+                for (let j = 0; j < 8; j++) {
+                    newPosition[i][j] = newPos[i][j];
+                }
+            }
+            
             setPosition(newPosition);
             setUserTurn(true);
             setCanEnPassant(CanEnPassant);
 
             setLastMove([to[0],to[1]]);
-            console.log(`lastMove ${lastMove[0]}, ${lastMove[1]}`);
         });
 
         return () => {
             socket.off('yourTurn');
         };
-    }, [position, setPosition, setUserTurn])
+    }, [position])
 
     for (let row = 0; row < 8; row ++) {
         const squares = [];

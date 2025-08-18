@@ -132,7 +132,7 @@ function knightMoves(array, row, col, position, color) {
         }
     }
     return array;
-} 
+}
 
 function kingMoves(array, row, col, position, color, canCastle) {
     let touchedPiece = [0];
@@ -163,6 +163,20 @@ function kingMoves(array, row, col, position, color, canCastle) {
         row = 7;
     }
 
+    const left = true;
+    const right = false;
+    if (checkKingCastle(canCastle, row, left, position)) {
+        for (let i = 1; i <= 4; i++) {
+            array[row][i] = 1;
+        }
+    }
+
+    if (checkKingCastle(canCastle, row, right, position)) {
+        for (let i = 5; i <= 6; i++) {
+            array[row][i] = 1;
+        } 
+    }
+    /*
     if (canCastle[0]) {
         ({arrVal, touch} = checkSquare(position, row, 0, touchedPiece, color, 0));
         if (arrVal != 0) {
@@ -176,10 +190,31 @@ function kingMoves(array, row, col, position, color, canCastle) {
             array[row][7] = arrVal;
         }
     }
-
+*/
     return array;
 }
 
+function checkKingCastle(canCastle, row, left, position) {
+    if (!canCastle) {
+        return false;
+    }
+
+    if (left && position[row][0].endsWith('4')) { // check left
+        for (let i = 2; i <= 3; i++) {
+            if (position[row][i] !== '0') {
+                return false;
+            }
+        }
+    } else if (!left && position[row][7].endsWith('4')) { // check right
+        for (let i = 5; i <= 6; i++) {
+            if (position[row][i] !== '0') {
+                return false;
+            }
+        } 
+    }
+
+    return true;
+}
 
 function diagonal(array, row, col, position, color) {
 
