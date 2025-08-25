@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import './ChessBoard.css';
 import socket from "../socket";
+import {isCheck } from "../scripts/CheckOrMate";
 
 import bBishop from './pieces-png/B-Bishop.png';
 import bKing from './pieces-png/B-King.png';
@@ -49,11 +50,10 @@ const emptyArray = [
 
 const squareClick = (opponent, row, col, color, position, setPosition, piece,
                     setPiece, prevSquare, setPrevSquare, setUserTurn, 
-                    dotsShown, setDotsShown, CanEnPassant, lastMove, canCastle, setCanCastle) => {
-    //console.log(lastMove);
+                    dotsShown, setDotsShown, CanEnPassant, lastMove, canCastle, setCanCastle,
+                    myKingPos, oppKingPos) => {
     if (piece !== '0' && piece !== '' && dotsShown[row][col] > 0) {
         const newPosition = position.map(row => [...row]);
-        console.log(dotsShown);
         if ((prevSquare[0] != row || prevSquare[1] != col)) {
 
             if (piece.endsWith('6')) {
@@ -89,13 +89,13 @@ const squareClick = (opponent, row, col, color, position, setPosition, piece,
             newPosition[row][col] = piece;
             newPosition[prevSquare[0]][prevSquare[1]] = '0';
             setPosition(newPosition);
-
+            let isItCheck = isCheck(oppKingPos.current[0], oppKingPos.current[1], newPosition, color);
+            console.log(`check: ${isItCheck}`);
             // Check if opponent can enPassant
             CanEnPassant = false;
             if (piece.endsWith('1') && Math.abs((row - prevSquare[0])) === 2) {
                 CanEnPassant = true;
             }
-            console.log(newPosition)
             socket.emit('madeMove', {
                 opponent,
                 from: prevSquare,
@@ -122,16 +122,16 @@ const squareClick = (opponent, row, col, color, position, setPosition, piece,
 }
 
 const ChessBoard = ({opponent, color, position, setPosition, userTurn, setUserTurn}) => {
-    console.log(`color ${color}`)
     const board = [];
     const className = `chess-board${color === 'black' ? ' rotate' : ''}`;
     const [piece, setPiece] = useState('');
     const [prevSquare, setPrevSquare] = useState([null, null]);
-    console.log(`${className}`)
     const [dotsShown, setDotsShown] = useState(emptyArray);
     const [CanEnPassant, setCanEnPassant] = useState(false);
     const [lastMove, setLastMove] = useState([,]);
     const [canCastle, setCanCastle] = useState([true,true]);
+    const myKingPos = useRef(null);
+    const oppKingPos = useRef(null);
 
     useEffect(() => {
         socket.on('yourTurn', ({from, to, piece, CanEnPassant, enPassanted, newPos}) => {
@@ -139,8 +139,6 @@ const ChessBoard = ({opponent, color, position, setPosition, userTurn, setUserTu
             const newPosition = position.map(row => [...row]);
             newPosition[to[0]][to[1]] = piece;
             newPosition[from[0]][from[1]] = '0';
-            console.log(`${enPassanted} enPassanted`);
-            console.log(newPos);
             
             if (enPassanted) {
                 if (color === 'white') {
@@ -172,6 +170,14 @@ const ChessBoard = ({opponent, color, position, setPosition, userTurn, setUserTu
         const squares = [];
         for (let col = 0; col < 8; col++) {
             const isBlack = (row + col) % 2 === 1;
+            if (position[row][col] === (color === 'white' ? 'B6' : 'W6')) {
+                oppKingPos.current = [row, col];
+            }
+
+            if (position[row][col] === (color === 'black' ? 'B6' : 'W6')) {
+                myKingPos.current = [row, col];
+            }
+
             squares.push(
                 <div key={`${row}-${col}`} 
                 className={`square ${isBlack ? 'black' : 'white'}`}
@@ -179,7 +185,7 @@ const ChessBoard = ({opponent, color, position, setPosition, userTurn, setUserTu
                                                     setPosition, piece, setPiece, prevSquare,
                                                     setPrevSquare, setUserTurn, 
                                                     dotsShown, setDotsShown,
-                                                    CanEnPassant, lastMove, canCastle, setCanCastle) : undefined}>
+                                                    CanEnPassant, lastMove, canCastle, setCanCastle, myKingPos, oppKingPos) : undefined}>
                     <div className={`${temp[dotsShown[row][col]]}`}></div>
                     <img  className={`${color === 'black' ? 'rotate' : ''}`} src={pieceImages[position[row][col]]}></img>
 
@@ -192,7 +198,6 @@ const ChessBoard = ({opponent, color, position, setPosition, userTurn, setUserTu
             </div>
         );
     }
-
     return <div className={className}>{board}</div>
 }
 

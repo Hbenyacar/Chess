@@ -1,3 +1,5 @@
+import { isCheck } from "./CheckOrMate";
+
 export function validMoves(row, col, position, color, CanEnPassant, lastMove, canCastle) {
     let validMoves = [
         [ 0, 0, 0, 0, 0, 0, 0, 0 ],
