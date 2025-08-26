@@ -35,7 +35,7 @@ const pieceImages = {
 
 const pieces = ['', 'Pawn', 'Knight', 'Bishop', 'Rook', 'Queen', 'King'];
 
-let temp = ['', 'dot', 'hollow-circle'];
+let moveIcon = ['', 'dot', 'hollow-circle'];
 
 const emptyArray = [
     [ 0, 0, 0, 0, 0, 0, 0, 0 ],
@@ -114,7 +114,8 @@ const squareClick = (opponent, row, col, color, position, setPosition, piece,
         setPiece(position[row][col]);
         if (position[row][col] !== '0' &&
             position[row][col].startsWith(color[0].toUpperCase())) {
-            setDotsShown(validMoves(row, col, position, color, CanEnPassant, lastMove, canCastle));
+                console.log(`posBeforePass ${myKingPos.current[0]} ${myKingPos.current[1]}`)
+            setDotsShown(validMoves(row, col, position, color, CanEnPassant, lastMove, canCastle, myKingPos.current));
         } else {
             setDotsShown(emptyArray);
         }
@@ -186,7 +187,7 @@ const ChessBoard = ({opponent, color, position, setPosition, userTurn, setUserTu
                                                     setPrevSquare, setUserTurn, 
                                                     dotsShown, setDotsShown,
                                                     CanEnPassant, lastMove, canCastle, setCanCastle, myKingPos, oppKingPos) : undefined}>
-                    <div className={`${temp[dotsShown[row][col]]}`}></div>
+                    <div className={`${moveIcon[dotsShown[row][col]]}`}></div>
                     <img  className={`${color === 'black' ? 'rotate' : ''}`} src={pieceImages[position[row][col]]}></img>
 
                 </div>

@@ -1,6 +1,11 @@
 import { isCheck } from "./CheckOrMate";
 
-export function validMoves(row, col, position, color, CanEnPassant, lastMove, canCastle) {
+let KingPos = null;
+
+export function validMoves(row, col, position, color, CanEnPassant, lastMove, canCastle, myKingPos) {
+    console.log(`myKingPos`);
+    console.log(`${myKingPos[0]} ${myKingPos[1]}`)
+    KingPos = [myKingPos[0], myKingPos[1]];
     let validMoves = [
         [ 0, 0, 0, 0, 0, 0, 0, 0 ],
         [ 0, 0, 0, 0, 0, 0, 0, 0 ], 
@@ -29,8 +34,31 @@ export function validMoves(row, col, position, color, CanEnPassant, lastMove, ca
     }
 }
 
-function checkSquare(position, x, y, touchedPiece, color, i) {
+function checkSquare(position, x, y, touchedPiece, color, i, origRow, origCol) {
+    
+    console.log(`KingPos ${KingPos[0]} ${KingPos[1]}`);
     if ((x) >= 0 && (y) >= 0 && (x < 8) && (y < 8) && (touchedPiece[i] != 1)) {
+
+        const newPosition = position.map(origRow => [...origRow]);
+        newPosition[x][y] = position[origRow][origCol];
+        newPosition[origRow][origCol] = '0';
+        console.log(`if move is made`);
+        console.log(newPosition);
+
+        let oppColor = color;
+        if (oppColor === 'white') {
+            oppColor = 'black';
+        } else {
+            oppColor = 'white';
+        }
+        
+        if (isCheck(KingPos[0], KingPos[1], newPosition, oppColor)) {
+            console.log(`Color: ${oppColor}`);
+            console.log('TRUE!!! IS CHECK!!!');
+            return {arrVal: 0, touch: 1};
+        }
+        console.log('false');
+
         if (!position[x][y].startsWith(color[0].toUpperCase()) || position[x][y] === '0') {
             if (position[x][y] !== '0') {
                 return {arrVal: 2, touch: 1};
@@ -45,25 +73,25 @@ function checkSquare(position, x, y, touchedPiece, color, i) {
 function straight(array, row, col, position, color) {
     let touched = [0,0,0,0];
     for (let i = 1; i < 8; i++) {
-        let {arrVal, touch} = checkSquare(position, row+i, col, touched, color, 0);
+        let {arrVal, touch} = checkSquare(position, row+i, col, touched, color, 0, row, col);
         if (arrVal > 0) {
             array[row+i][col] = arrVal;
         }
         touched[0] = touch;
 
-        ({arrVal, touch} = checkSquare(position, row-i, col, touched, color, 1));
+        ({arrVal, touch} = checkSquare(position, row-i, col, touched, color, 1, row, col));
         if (arrVal > 0) {
             array[row-i][col] = arrVal;
         }
         touched[1] = touch;
 
-        ({arrVal, touch} = checkSquare(position, row, col+i, touched, color, 2));
+        ({arrVal, touch} = checkSquare(position, row, col+i, touched, color, 2, row, col));
         if (arrVal > 0) {
             array[row][col+i] = arrVal;
         }
         touched[2] = touch;
 
-        ({arrVal, touch} = checkSquare(position, row, col-i, touched, color, 3));
+        ({arrVal, touch} = checkSquare(position, row, col-i, touched, color, 3, row, col));
         if (arrVal > 0) {
             array[row][col-i] = arrVal;
         }
@@ -82,21 +110,21 @@ function pawnMoves(array, row, col, position, color, CanEnPassant, lastMove) {
         startRow = 6;
     }
 
-    let {arrVal, touch} = checkSquare(position, (row + isBlack), col, touched, color, 0);
+    let {arrVal, touch} = checkSquare(position, (row + isBlack), col, touched, color, 0, row, col);
     if (arrVal == 1) {
         array[row+isBlack][col] = arrVal;
     }
     if (row === startRow) { // 2 squares if not moved
-        ({arrVal, touch} = checkSquare(position, row + (isBlack*(2)), col, touched, color, 0));
+        ({arrVal, touch} = checkSquare(position, row + (isBlack*(2)), col, touched, color, 0, row, col));
         if (arrVal == 1) {
             array[row + (isBlack*(2))][col] = arrVal;
         }
     }
-    ({arrVal, touch} = checkSquare(position, (row + isBlack), (col-1), touched, color, 0));
+    ({arrVal, touch} = checkSquare(position, (row + isBlack), (col-1), touched, color, 0, row, col));
     if (arrVal == 2) {
         array[row+isBlack][col-1] = arrVal;
     }
-    ({arrVal, touch} = checkSquare(position, (row + isBlack), (col+1), touched, color, 0));
+    ({arrVal, touch} = checkSquare(position, (row + isBlack), (col+1), touched, color, 0, row, col));
     if (arrVal == 2) {
         array[row+isBlack][col+1] = arrVal;
     }
@@ -128,7 +156,7 @@ function knightMoves(array, row, col, position, color) {
     for (let i = 0; i < 8; i++) {
         let x = parseInt(row) + parseInt(possibleMoves[i][0]);
         let y = parseInt(col) + parseInt(possibleMoves[i][1]);
-        let {arrVal, touch} = checkSquare(position, x, y, touchedPiece, color, 0);
+        let {arrVal, touch} = checkSquare(position, x, y, touchedPiece, color, 0, row, col);
         if (arrVal != 0) {
             array[x][y] = arrVal;
         }
@@ -140,7 +168,7 @@ function kingMoves(array, row, col, position, color, canCastle) {
     let touchedPiece = [0];
     let arrVal = 0;
     let touch = 0;
-
+    let tempKingPos = [KingPos[0], KingPos[1]];
     const possibleMoves = [[[-1],[-1]],
                         [[-1],[1]],
                         [[1],[1]],
@@ -153,11 +181,13 @@ function kingMoves(array, row, col, position, color, canCastle) {
     for (let i = 0; i < 8; i++) {
         let x = parseInt(row) + parseInt(possibleMoves[i][0]);
         let y = parseInt(col) + parseInt(possibleMoves[i][1]);
-        ({arrVal, touch} = checkSquare(position, x, y, touchedPiece, color, 0));
+        KingPos = [x, y];
+        ({arrVal, touch} = checkSquare(position, x, y, touchedPiece, color, 0, row, col));
         if (arrVal != 0) {
             array[x][y] = arrVal;
         }
     }
+    KingPos = [tempKingPos[0], tempKingPos[1]]
 
     if (color === 'black') {
         row = 0;
@@ -178,21 +208,7 @@ function kingMoves(array, row, col, position, color, canCastle) {
             array[row][i] = 1;
         } 
     }
-    /*
-    if (canCastle[0]) {
-        ({arrVal, touch} = checkSquare(position, row, 0, touchedPiece, color, 0));
-        if (arrVal != 0) {
-            array[row][0] = arrVal;
-        }
-    }
 
-    if (canCastle[1]) {
-        ({arrVal, touch} = checkSquare(position, row, 7, touchedPiece, color, 0));
-        if (arrVal != 0) {
-            array[row][7] = arrVal;
-        }
-    }
-*/
     return array;
 }
 
@@ -226,25 +242,25 @@ function diagonal(array, row, col, position, color) {
     let touchedPiece = [0, 0, 0, 0]
     while (i < 8) {
         // top left check for white
-        let {arrVal, touch} = checkSquare(position, (x-i), (y-i), touchedPiece, color, 0);
+        let {arrVal, touch} = checkSquare(position, (x-i), (y-i), touchedPiece, color, 0, row, col);
         if (arrVal != 0) {
             array[x-i][y-i] = arrVal;
         }
         touchedPiece[0] = touch;
 
-        ({arrVal, touch} = checkSquare(position, (x+i), (y+i), touchedPiece, color, 1));
+        ({arrVal, touch} = checkSquare(position, (x+i), (y+i), touchedPiece, color, 1, row, col));
         if (arrVal != 0) {
             array[x+i][y+i] = arrVal;
         }
         touchedPiece[1] = touch;
 
-        ({arrVal, touch} = checkSquare(position, (x-i), (y+i), touchedPiece, color, 2));
+        ({arrVal, touch} = checkSquare(position, (x-i), (y+i), touchedPiece, color, 2, row, col));
         if (arrVal != 0) {
             array[x-i][y+i] = arrVal;
         }
         touchedPiece[2] = touch;
 
-        ({arrVal, touch} = checkSquare(position, (x+i), (y-i), touchedPiece, color, 3));
+        ({arrVal, touch} = checkSquare(position, (x+i), (y-i), touchedPiece, color, 3, row, col));
         if (arrVal != '0') {
             array[x+i][y-i] = arrVal;
         }

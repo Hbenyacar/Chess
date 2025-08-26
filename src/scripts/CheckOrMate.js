@@ -1,4 +1,7 @@
 export function isCheck(row, col, position, color) {
+    console.log(`king row ${row}`)
+    console.log(`king col ${col}`)
+    console.log(`color ${color}`)
     // Check Diagonal
     if (checkDiagonal(row, col, position, color)) {
         return true;
