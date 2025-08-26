@@ -1,27 +1,65 @@
 export function isCheck(row, col, position, color) {
     // Check Diagonal
-    return checkDiagonal(row, col, position, color);
+    if (checkDiagonal(row, col, position, color)) {
+        return true;
+    }
+
+    if (checkStraight(row, col, position, color)) {
+        return true;
+    }
+
+    return false;
+}
+
+function checkStraight(row, col, position, color) {
+    let piecesToCheck = ['4', '5'];
+    let isCheck = checkLine(position, row, col, color, piecesToCheck, -1, 0);
+        if (isCheck == 1) {
+            return true;
+        }
+
+        // Check Bottom Left
+        isCheck = checkLine(position, row, col, color, piecesToCheck, 0, -1);
+        if (isCheck == 1) {
+            return true;
+        }
+
+        // Check Top Right
+        isCheck = checkLine(position, row, col, color, piecesToCheck, 0, 1);
+        if (isCheck == 1) {
+            return true;
+        }
+
+        // Check Bottom Right
+        isCheck = checkLine(position, row, col, color, piecesToCheck, 1, 0);
+        if (isCheck == 1) {
+            return true;
+        }
 }
 
 function checkDiagonal(row, col, position, color) {
-    let piecesToCheck = ['3', '5']
+    let piecesToCheck = ['3', '5'];
 
-        let isCheck = checkSqaure(position, row, col, color, piecesToCheck, -1, -1);
+        // Check Top Left
+        let isCheck = checkLine(position, row, col, color, piecesToCheck, -1, -1);
         if (isCheck == 1) {
             return true;
         }
 
-        isCheck = checkSqaure(position, row, col, color, piecesToCheck, 1, -1);
+        // Check Bottom Left
+        isCheck = checkLine(position, row, col, color, piecesToCheck, 1, -1);
         if (isCheck == 1) {
             return true;
         }
 
-        isCheck = checkSqaure(position, row, col, color, piecesToCheck, -1, 1);
+        // Check Top Right
+        isCheck = checkLine(position, row, col, color, piecesToCheck, -1, 1);
         if (isCheck == 1) {
             return true;
         }
 
-        isCheck = checkSqaure(position, row, col, color, piecesToCheck, 1, 1);
+        // Check Bottom Right
+        isCheck = checkLine(position, row, col, color, piecesToCheck, 1, 1);
         if (isCheck == 1) {
             return true;
         }
@@ -29,7 +67,7 @@ function checkDiagonal(row, col, position, color) {
     return false;
 }
 
-function checkSqaure(position, row, col, color, piecesToCheck, rowSign, colSign) {
+function checkLine(position, row, col, color, piecesToCheck, rowSign, colSign) {
     let i = 1;
     while (i < 8) {
         let x = row + (rowSign * i);
@@ -40,6 +78,8 @@ function checkSqaure(position, row, col, color, piecesToCheck, rowSign, colSign)
                 console.log(`piece: ${position[x][y]}`);
                 if (position[x][y].endsWith(piecesToCheck[j]) && position[x][y].startsWith(color[0].toUpperCase())) {
                     return 1; // is Check
+                } else if (!position[x][y].startsWith(color[0].toUpperCase()) && !position[x][y].startsWith('0')) {
+                    return 0;
                 }
             }
         }
