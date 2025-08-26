@@ -116,14 +116,14 @@ function pawnMoves(array, row, col, position, color, CanEnPassant, lastMove) {
 function knightMoves(array, row, col, position, color) {
     let touchedPiece = [0];
 
-    const possibleMoves = [[[-1],[2]],
-                        [[1],[-2]],
-                        [[-1],[-2]],
-                        [[1],[2]],
-                        [[2],[-1]],
-                        [[-2],[1]],
-                        [[-2],[-1]],
-                        [[2],[1]]];
+    const possibleMoves = [[-1, 2],
+                        [1, -2],
+                        [-1, -2],
+                        [1, 2],
+                        [2, -1],
+                        [-2, 1],
+                        [-2, -1],
+                        [2, 1]];
 
     for (let i = 0; i < 8; i++) {
         let x = parseInt(row) + parseInt(possibleMoves[i][0]);

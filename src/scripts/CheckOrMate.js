@@ -8,6 +8,33 @@ export function isCheck(row, col, position, color) {
         return true;
     }
 
+    if (checkKnight(row, col, position, color)) {
+        return true;
+    }
+
+    return false;
+}
+
+function checkKnight(row, col, position, color) {
+
+    const possibleMoves = [[-1, 2],
+                        [1, -2],
+                        [-1, -2],
+                        [1, 2],
+                        [2, -1],
+                        [-2, 1],
+                        [-2, -1],
+                        [2, 1]];
+
+    for (let i = 0; i < 8; i++) {
+        let x = parseInt(row) + parseInt(possibleMoves[i][0]);
+        let y = parseInt(col) + parseInt(possibleMoves[i][1]);
+        if ((x) >= 0 && (y) >= 0 && (x < 8) && (y < 8) ) {
+            if (position[x][y].endsWith('2') && position[x][y].startsWith(color[0].toUpperCase())) {
+                return true; // is Check
+            }
+        }
+    }
     return false;
 }
 
