@@ -17,7 +17,6 @@ export function validMoves(row, col, position, color, CanEnPassant, lastMove, ca
         [ 0, 0, 0, 0, 0, 0, 0, 0 ]
     ]
 
-    console.log('in main');
     if (position[row][col].endsWith('1')) {
         return pawnMoves(validMoves, row, col, position, color, CanEnPassant, lastMove);
     } else if (position[row][col].endsWith('2')) {
@@ -189,21 +188,23 @@ function kingMoves(array, row, col, position, color, canCastle) {
     }
     KingPos = [tempKingPos[0], tempKingPos[1]]
 
+    let oppColor = 'white';
     if (color === 'black') {
         row = 0;
     } else {
+        oppColor = 'black';
         row = 7;
     }
 
     const left = true;
     const right = false;
-    if (checkKingCastle(canCastle, row, left, position)) {
-        for (let i = 1; i <= 4; i++) {
+    if (checkKingCastle(canCastle, row, left, position, oppColor)) {
+        for (let i = 1; i <= 3; i++) {
             array[row][i] = 1;
         }
     }
 
-    if (checkKingCastle(canCastle, row, right, position)) {
+    if (checkKingCastle(canCastle, row, right, position, oppColor)) {
         for (let i = 5; i <= 6; i++) {
             array[row][i] = 1;
         } 
@@ -212,20 +213,26 @@ function kingMoves(array, row, col, position, color, canCastle) {
     return array;
 }
 
-function checkKingCastle(canCastle, row, left, position) {
+function checkKingCastle(canCastle, row, left, position, oppColor) {
     if (!canCastle) {
         return false;
     }
 
     if (left && position[row][0].endsWith('4')) { // check left
         for (let i = 2; i <= 3; i++) {
-            if (position[row][i] !== '0') {
+            const newPosition = position.map(origRow => [...origRow]);
+            newPosition[row][i] = position[row][5];
+            newPosition[row][5] = '0';
+            if (position[row][i] !== '0' || isCheck(row, i, newPosition, oppColor)) {
                 return false;
             }
         }
     } else if (!left && position[row][7].endsWith('4')) { // check right
         for (let i = 5; i <= 6; i++) {
-            if (position[row][i] !== '0') {
+            const newPosition = position.map(origRow => [...origRow]);
+            newPosition[row][i] = position[row][5];
+            newPosition[row][5] = '0';
+            if (position[row][i] !== '0' || isCheck(row, i, newPosition, oppColor)) {
                 return false;
             }
         } 

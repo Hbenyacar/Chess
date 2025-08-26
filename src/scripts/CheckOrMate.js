@@ -130,13 +130,12 @@ function checkLine(position, row, col, color, piecesToCheck, rowSign, colSign) {
         let y = col + (colSign * i);
         if ((x) >= 0 && (y) >= 0 && (x < 8) && (y < 8) ) {
             console.log('here');
-            for (let j = 0; j < piecesToCheck.length; j++) {
-                console.log(`piece: ${position[x][y]}`);
-                if (position[x][y].endsWith(piecesToCheck[j]) && position[x][y].startsWith(color[0].toUpperCase())) {
-                    return 1; // is Check
-                } else if (!position[x][y].startsWith(color[0].toUpperCase()) && !position[x][y].startsWith('0')) {
-                    return 0;
-                }
+            const piece = position[x][y];
+            const lastChar = piece.slice(-1);
+            if (piecesToCheck.includes(lastChar) && piece.startsWith(color[0].toUpperCase())) {
+                return 1; // is Check
+            } else if (!piece.startsWith('0')) {
+                return 0;
             }
         }
         i++;
