@@ -12,6 +12,32 @@ export function isCheck(row, col, position, color) {
         return true;
     }
 
+    if (checkPawn(row, col, position, color)) {
+        return true;
+    }
+
+    return false;
+}
+
+function checkPawn(x, y, position, color) {
+    let direction = -1;
+    if (color === 'white') {
+        direction = 1;
+    }
+    console.log(`direction: ${direction}`)
+    if ((x + direction) >= 0 && (y + 1) >= 0 && ((x + direction) < 8) && ((y + 1) < 8) ) {
+        console.log('here1')
+        if (position[x + direction][y + 1].endsWith('1') && position[x + direction][y + 1].startsWith(color[0].toUpperCase())) {
+            return true; // is Check
+        }
+    }
+
+    if ((x + direction) >= 0 && (y - 1) >= 0 && ((x + direction) < 8) && ((y - 1) < 8) ) {
+        console.log('here2')
+        if (position[x + direction][y - 1].endsWith('1') && position[x + direction][y - 1].startsWith(color[0].toUpperCase())) {
+            return true; // is Check
+        }
+    }
     return false;
 }
 
