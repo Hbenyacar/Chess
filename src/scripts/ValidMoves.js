@@ -48,8 +48,12 @@ function checkSquare(position, x, y, touchedPiece, color, i, origRow, origCol) {
         }
         console.log();
         if (isCheck(KingPos[0], KingPos[1], newPosition, oppColor)) {
-
-            return {arrVal: 0, touch: 0};
+            if (position[x][y] === '0') {
+                return {arrVal: 0, touch: 0};
+            } else {
+                return {arrVal: 0, touch: 1};
+            }
+        
         }
 
 
