@@ -3,8 +3,7 @@ import { isCheck } from "./CheckOrMate";
 let KingPos = null;
 
 export function validMoves(row, col, position, color, CanEnPassant, lastMove, canCastle, myKingPos) {
-    console.log(`myKingPos`);
-    console.log(`${myKingPos[0]} ${myKingPos[1]}`)
+
     KingPos = [myKingPos[0], myKingPos[1]];
     let validMoves = [
         [ 0, 0, 0, 0, 0, 0, 0, 0 ],
@@ -34,15 +33,13 @@ export function validMoves(row, col, position, color, CanEnPassant, lastMove, ca
 }
 
 function checkSquare(position, x, y, touchedPiece, color, i, origRow, origCol) {
-    
-    console.log(`KingPos ${KingPos[0]} ${KingPos[1]}`);
+
     if ((x) >= 0 && (y) >= 0 && (x < 8) && (y < 8) && (touchedPiece[i] != 1)) {
 
         const newPosition = position.map(origRow => [...origRow]);
         newPosition[x][y] = position[origRow][origCol];
         newPosition[origRow][origCol] = '0';
-        console.log(`if move is made`);
-        console.log(newPosition);
+
 
         let oppColor = color;
         if (oppColor === 'white') {
@@ -50,13 +47,14 @@ function checkSquare(position, x, y, touchedPiece, color, i, origRow, origCol) {
         } else {
             oppColor = 'white';
         }
-        
+        console.log(`new pos`);
+        console.log(newPosition);
+
         if (isCheck(KingPos[0], KingPos[1], newPosition, oppColor)) {
-            console.log(`Color: ${oppColor}`);
-            console.log('TRUE!!! IS CHECK!!!');
+
             return {arrVal: 0, touch: 1};
         }
-        console.log('false');
+
 
         if (!position[x][y].startsWith(color[0].toUpperCase()) || position[x][y] === '0') {
             if (position[x][y] !== '0') {
@@ -96,7 +94,7 @@ function straight(array, row, col, position, color) {
         }
         touched[3] = touch;
     }
-    console.log(array);
+
     return array;
 }
 
@@ -130,7 +128,7 @@ function pawnMoves(array, row, col, position, color, CanEnPassant, lastMove) {
 
     // Determine if this pawn can enPassant
     if (CanEnPassant && (row == lastMove[0]) && (Math.abs(col-lastMove[1]) == 1)) {
-        console.log('in here')
+
         if (lastMove[1] > col) {
             array[row+isBlack][col+1] = 2;
         } else {
@@ -274,6 +272,6 @@ function diagonal(array, row, col, position, color) {
         touchedPiece[3] = touch;
         i++;
     }
-    console.log(array)
+
     return array;
 }

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import './ChessBoard.css';
 import socket from "../socket";
-import {isCheck } from "../scripts/CheckOrMate";
+import {isCheck, isMate } from "../scripts/CheckOrMate";
 
 import bBishop from './pieces-png/B-Bishop.png';
 import bKing from './pieces-png/B-King.png';
@@ -90,6 +90,31 @@ const squareClick = (opponent, row, col, color, position, setPosition, piece,
             newPosition[prevSquare[0]][prevSquare[1]] = '0';
             setPosition(newPosition);
             let isItCheck = isCheck(oppKingPos.current[0], oppKingPos.current[1], newPosition, color);
+            let isMate = true;
+            let oppColor = color;
+            if (oppColor === 'white') {
+                oppColor = 'black';
+            } else {
+                oppColor = 'white';
+            }
+            if (isItCheck) {
+                for (let i = 0; i < 8; i++) {
+                    for (let j = 0; j < 8; j++) {
+                        if (!newPosition[i][j].startsWith(color[0].toUpperCase()) && !newPosition[i][j].startsWith('0')) {
+                            let tempArr = validMoves(i, j, newPosition, oppColor, CanEnPassant, lastMove, canCastle, oppKingPos.current);
+                            console.log(newPosition[i][j]);
+                            console.log(tempArr);
+                            console.log(newPosition);
+                            if (tempArr.some(row => row.includes(1)) || tempArr.some(row => row.includes(2))) {
+                                isMate = false;
+                            }
+                        }
+                    }
+                }
+            } else {
+                isMate = false;
+            }
+            console.log(`MATE: ${isMate}`);
             console.log(`check: ${isItCheck}`);
             // Check if opponent can enPassant
             CanEnPassant = false;
@@ -114,7 +139,6 @@ const squareClick = (opponent, row, col, color, position, setPosition, piece,
         setPiece(position[row][col]);
         if (position[row][col] !== '0' &&
             position[row][col].startsWith(color[0].toUpperCase())) {
-                console.log(`posBeforePass ${myKingPos.current[0]} ${myKingPos.current[1]}`)
             setDotsShown(validMoves(row, col, position, color, CanEnPassant, lastMove, canCastle, myKingPos.current));
         } else {
             setDotsShown(emptyArray);

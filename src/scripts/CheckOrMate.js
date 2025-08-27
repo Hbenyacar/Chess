@@ -1,7 +1,7 @@
+import { validMoves } from "./ValidMoves";
+
 export function isCheck(row, col, position, color) {
-    console.log(`king row ${row}`)
-    console.log(`king col ${col}`)
-    console.log(`color ${color}`)
+
     // Check Diagonal
     if (checkDiagonal(row, col, position, color)) {
         return true;
@@ -27,16 +27,14 @@ function checkPawn(x, y, position, color) {
     if (color === 'white') {
         direction = 1;
     }
-    console.log(`direction: ${direction}`)
+
     if ((x + direction) >= 0 && (y + 1) >= 0 && ((x + direction) < 8) && ((y + 1) < 8) ) {
-        console.log('here1')
         if (position[x + direction][y + 1].endsWith('1') && position[x + direction][y + 1].startsWith(color[0].toUpperCase())) {
             return true; // is Check
         }
     }
 
     if ((x + direction) >= 0 && (y - 1) >= 0 && ((x + direction) < 8) && ((y - 1) < 8) ) {
-        console.log('here2')
         if (position[x + direction][y - 1].endsWith('1') && position[x + direction][y - 1].startsWith(color[0].toUpperCase())) {
             return true; // is Check
         }
@@ -129,7 +127,6 @@ function checkLine(position, row, col, color, piecesToCheck, rowSign, colSign) {
         let x = row + (rowSign * i);
         let y = col + (colSign * i);
         if ((x) >= 0 && (y) >= 0 && (x < 8) && (y < 8) ) {
-            console.log('here');
             const piece = position[x][y];
             const lastChar = piece.slice(-1);
             if (piecesToCheck.includes(lastChar) && piece.startsWith(color[0].toUpperCase())) {
