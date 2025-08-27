@@ -51,7 +51,7 @@ const emptyArray = [
 const squareClick = (opponent, row, col, color, position, setPosition, piece,
                     setPiece, prevSquare, setPrevSquare, setUserTurn, 
                     dotsShown, setDotsShown, CanEnPassant, lastMove, canCastle, setCanCastle,
-                    myKingPos, oppKingPos) => {
+                    myKingPos, oppKingPos, setIsMate, setYouWin) => {
     if (piece !== '0' && piece !== '' && dotsShown[row][col] > 0) {
         const newPosition = position.map(row => [...row]);
         if ((prevSquare[0] != row || prevSquare[1] != col)) {
@@ -131,6 +131,12 @@ const squareClick = (opponent, row, col, color, position, setPosition, piece,
                 newPos: newPosition,
                 isMate
               });
+            setIsMate(isMate);
+            console.log(`isMate! ${isMate}`)
+            if (isMate) {
+                console.log(`isMate! ${isMate}`)
+                setYouWin(true);
+            }
             setUserTurn(false);
             setDotsShown(emptyArray);
         }
@@ -147,7 +153,7 @@ const squareClick = (opponent, row, col, color, position, setPosition, piece,
     }
 }
 
-const ChessBoard = ({opponent, color, position, setPosition, userTurn, setUserTurn, setIsMate}) => {
+const ChessBoard = ({opponent, color, position, setPosition, userTurn, setUserTurn, setIsMate, setYouWin}) => {
     const board = [];
     const className = `chess-board${color === 'black' ? ' rotate' : ''}`;
     const [piece, setPiece] = useState('');
@@ -211,7 +217,8 @@ const ChessBoard = ({opponent, color, position, setPosition, userTurn, setUserTu
                                                     setPosition, piece, setPiece, prevSquare,
                                                     setPrevSquare, setUserTurn, 
                                                     dotsShown, setDotsShown,
-                                                    CanEnPassant, lastMove, canCastle, setCanCastle, myKingPos, oppKingPos) : undefined}>
+                                                    CanEnPassant, lastMove, canCastle, setCanCastle,
+                                                    myKingPos, oppKingPos, setIsMate, setYouWin) : undefined}>
                     <div className={`${moveIcon[dotsShown[row][col]]}`}></div>
                     <img  className={`${color === 'black' ? 'rotate' : ''}`} src={pieceImages[position[row][col]]}></img>
 
