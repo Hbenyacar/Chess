@@ -46,12 +46,10 @@ function checkSquare(position, x, y, touchedPiece, color, i, origRow, origCol) {
         } else {
             oppColor = 'white';
         }
-        console.log(`new pos`);
-        console.log(newPosition);
-
+        console.log();
         if (isCheck(KingPos[0], KingPos[1], newPosition, oppColor)) {
 
-            return {arrVal: 0, touch: 1};
+            return {arrVal: 0, touch: 0};
         }
 
 
@@ -129,9 +127,16 @@ function pawnMoves(array, row, col, position, color, CanEnPassant, lastMove) {
     if (CanEnPassant && (row == lastMove[0]) && (Math.abs(col-lastMove[1]) == 1)) {
 
         if (lastMove[1] > col) {
-            array[row+isBlack][col+1] = 2;
+            ({arrVal, touch} = checkSquare(position, (row + isBlack), (col+1), touched, color, 0, row, col));
+            if (arrVal != 0) {
+                array[row+isBlack][col+1] = 2;
+            }
+
         } else {
-            array[row+isBlack][col-1] = 2;
+            ({arrVal, touch} = checkSquare(position, (row + isBlack), (col-1), touched, color, 0, row, col));
+            if (arrVal != 0) {
+                array[row+isBlack][col-1] = 2;
+            }
         }
     }
     return array;

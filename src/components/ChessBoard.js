@@ -103,8 +103,8 @@ const squareClick = (opponent, row, col, color, position, setPosition, piece,
                         if (!newPosition[i][j].startsWith(color[0].toUpperCase()) && !newPosition[i][j].startsWith('0')) {
                             let tempArr = validMoves(i, j, newPosition, oppColor, CanEnPassant, lastMove, canCastle, oppKingPos.current, myKingPos.current);
                             console.log(newPosition[i][j]);
+                            console.log(`i j ${i} ${j}`);
                             console.log(tempArr);
-                            console.log(newPosition);
                             if (tempArr.some(row => row.includes(1)) || tempArr.some(row => row.includes(2))) {
                                 isMate = false;
                             }
@@ -128,7 +128,8 @@ const squareClick = (opponent, row, col, color, position, setPosition, piece,
                 piece,
                 CanEnPassant,
                 enPassanted,
-                newPos: newPosition
+                newPos: newPosition,
+                isMate
               });
             setUserTurn(false);
             setDotsShown(emptyArray);
@@ -146,7 +147,7 @@ const squareClick = (opponent, row, col, color, position, setPosition, piece,
     }
 }
 
-const ChessBoard = ({opponent, color, position, setPosition, userTurn, setUserTurn}) => {
+const ChessBoard = ({opponent, color, position, setPosition, userTurn, setUserTurn, setIsMate}) => {
     const board = [];
     const className = `chess-board${color === 'black' ? ' rotate' : ''}`;
     const [piece, setPiece] = useState('');
@@ -159,8 +160,8 @@ const ChessBoard = ({opponent, color, position, setPosition, userTurn, setUserTu
     const oppKingPos = useRef(null);
 
     useEffect(() => {
-        socket.on('yourTurn', ({from, to, piece, CanEnPassant, enPassanted, newPos}) => {
-
+        socket.on('yourTurn', ({from, to, piece, CanEnPassant, enPassanted, newPos, isMate}) => {
+            console.log(isMate);
             const newPosition = position.map(row => [...row]);
             newPosition[to[0]][to[1]] = piece;
             newPosition[from[0]][from[1]] = '0';
@@ -182,7 +183,7 @@ const ChessBoard = ({opponent, color, position, setPosition, userTurn, setUserTu
             setPosition(newPosition);
             setUserTurn(true);
             setCanEnPassant(CanEnPassant);
-
+            setIsMate(isMate);
             setLastMove([to[0],to[1]]);
         });
 

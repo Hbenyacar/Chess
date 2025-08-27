@@ -10,6 +10,7 @@ function Lobby() {
   const [username, setUser] = useState('');
   const [opponent, setOpponent] = useState('');
   const [myTurn, setMyTurn] = useState(false);
+  const [isMate, setIsMate] = useState(false);
   const [position, setPosition] = useState([[
     'B4', 'B2', 'B3', 'B5', 'B6', 'B3', 'B2', 'B4'],
     ['B1', 'B1', 'B1', 'B1', 'B1', 'B1', 'B1', 'B1'],
@@ -70,7 +71,8 @@ function Lobby() {
       <header>{opponent}</header>
       <header>{`my color ${color}`}</header>
       <header>{`my turn ${myTurn}`}</header>
-      <ChessBoard opponent={opponent} color={color} position={position} setPosition={setPosition} userTurn={myTurn} setUserTurn={setMyTurn}/>
+      {isMate && <header>{'CHECKMATE!!!'}</header>}
+      <ChessBoard opponent={opponent} color={color} position={position} setPosition={setPosition} userTurn={myTurn} setUserTurn={setMyTurn} setIsMate={setIsMate}/>
     </div>
 
   );
