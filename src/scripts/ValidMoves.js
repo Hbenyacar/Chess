@@ -2,7 +2,7 @@ import { isCheck } from "./CheckOrMate";
 
 let KingPos = null;
 
-export function validMoves(row, col, position, color, CanEnPassant, lastMove, canCastle, myKingPos) {
+export function validMoves(row, col, position, color, CanEnPassant, lastMove, canCastle, myKingPos, oppKingPos) {
 
     KingPos = [myKingPos[0], myKingPos[1]];
     let validMoves = [
@@ -28,7 +28,7 @@ export function validMoves(row, col, position, color, CanEnPassant, lastMove, ca
         validMoves = straight(validMoves, row, col, position, color);
         return diagonal(validMoves, row, col, position, color);
     } else if (position[row][col].endsWith('6')) {
-        return kingMoves(validMoves, row, col, position, color, canCastle);
+        return kingMoves(validMoves, row, col, position, color, canCastle, oppKingPos);
     }
 }
 
@@ -39,7 +39,6 @@ function checkSquare(position, x, y, touchedPiece, color, i, origRow, origCol) {
         const newPosition = position.map(origRow => [...origRow]);
         newPosition[x][y] = position[origRow][origCol];
         newPosition[origRow][origCol] = '0';
-
 
         let oppColor = color;
         if (oppColor === 'white') {
@@ -111,7 +110,7 @@ function pawnMoves(array, row, col, position, color, CanEnPassant, lastMove) {
     if (arrVal == 1) {
         array[row+isBlack][col] = arrVal;
     }
-    if (row === startRow) { // 2 squares if not moved
+    if (row === startRow && position[row+isBlack][col].startsWith('0')) { // 2 squares if not moved
         ({arrVal, touch} = checkSquare(position, row + (isBlack*(2)), col, touched, color, 0, row, col));
         if (arrVal == 1) {
             array[row + (isBlack*(2))][col] = arrVal;
@@ -161,7 +160,7 @@ function knightMoves(array, row, col, position, color) {
     return array;
 }
 
-function kingMoves(array, row, col, position, color, canCastle) {
+function kingMoves(array, row, col, position, color, canCastle, oppKingPos) {
     let touchedPiece = [0];
     let arrVal = 0;
     let touch = 0;
@@ -185,6 +184,14 @@ function kingMoves(array, row, col, position, color, canCastle) {
         }
     }
     KingPos = [tempKingPos[0], tempKingPos[1]]
+
+    for (let i = 0; i < 8; i++) {
+        let x = parseInt(oppKingPos[0]) + parseInt(possibleMoves[i][0]);
+        let y = parseInt(oppKingPos[1]) + parseInt(possibleMoves[i][1]);
+        if ((x) >= 0 && (y) >= 0 && (x < 8) && (y < 8) && (touchedPiece[i] != 1)) {
+            array[x][y] = '0';
+        }
+    }
 
     let oppColor = 'white';
     if (color === 'black') {

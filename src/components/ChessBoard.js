@@ -101,7 +101,7 @@ const squareClick = (opponent, row, col, color, position, setPosition, piece,
                 for (let i = 0; i < 8; i++) {
                     for (let j = 0; j < 8; j++) {
                         if (!newPosition[i][j].startsWith(color[0].toUpperCase()) && !newPosition[i][j].startsWith('0')) {
-                            let tempArr = validMoves(i, j, newPosition, oppColor, CanEnPassant, lastMove, canCastle, oppKingPos.current);
+                            let tempArr = validMoves(i, j, newPosition, oppColor, CanEnPassant, lastMove, canCastle, oppKingPos.current, myKingPos.current);
                             console.log(newPosition[i][j]);
                             console.log(tempArr);
                             console.log(newPosition);
@@ -139,7 +139,7 @@ const squareClick = (opponent, row, col, color, position, setPosition, piece,
         setPiece(position[row][col]);
         if (position[row][col] !== '0' &&
             position[row][col].startsWith(color[0].toUpperCase())) {
-            setDotsShown(validMoves(row, col, position, color, CanEnPassant, lastMove, canCastle, myKingPos.current));
+            setDotsShown(validMoves(row, col, position, color, CanEnPassant, lastMove, canCastle, myKingPos.current, oppKingPos.current));
         } else {
             setDotsShown(emptyArray);
         }
